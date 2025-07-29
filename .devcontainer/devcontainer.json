@@ -1,5 +1,43 @@
 {
-  "name": "blank‑sandbox",
-  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-22.04",  // plain Ubuntu w/o language stacks
-  "remoteUser": "vscode"                                         // non‑root user already created in the base image
+  "name": "blank-sandbox",
+  "image": "polkavm-dev:debug", // plain Ubuntu w/o language stacks
+  "remoteUser": "vscode",
+  "features": {
+    // npm/node
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "lts"
+    },
+
+    // rust toolchain
+    "ghcr.io/devcontainers/features/rust:1": {
+      "version": "stable",
+      "targets": "wasm32-unknown-unknown",
+      "components": "rust-src"
+    }
+  },
+
+  // Install additional dependencies
+  // - cmake
+  "postCreateCommand": "sudo apt-get update && sudo apt-get install -y cmake && sudo chown -R vscode:vscode /home/vscode/.npm",
+
+  // Optimize rebuilds w/ mounted caches (necessary/good?)
+  "mounts": [
+    "source=cargo_cache,target=/usr/local/cargo/registry,type=volume",
+    "source=npm_cache,target=/home/vscode/.npm,type=volume"
+  ],
+
+  // Standard development settings
+  // Maybe opinionated & should be removed?
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "rust-lang.rust-analyzer"
+      ],
+      "settings": {
+        "editor.formatOnSave": true
+      }
+    }
+  },
 }
