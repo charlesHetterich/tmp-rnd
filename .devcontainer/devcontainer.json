@@ -1,0 +1,5 @@
+{
+  "name": "blank‑sandbox",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-22.04",  // plain Ubuntu w/o language stacks
+  "remoteUser": "dev"                                         // non‑root user already created in the base image
+}
