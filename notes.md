@@ -4,6 +4,10 @@ Mindful of
 - time to setup, each time
 - space taken on device
 - development from local or remote machine. Do we have to be mindful of windows ?
+- target users
+    - very basic developers
+    - high level developers at companies w/ potentially weird permissions and things such as GPG key forwarding for verified commits 🤔
+- Can we forward a users development setup? Balance between using a user's custom configurations (such as using Oh My Zsh), vs. things we want to *override* within the dev container (i.e. formatters)
 
 Requires
 - Docker
