@@ -1,6 +1,6 @@
 {
-  "name": "blank-sandbox",
-  "image": "polkavm-dev:debug", // plain Ubuntu w/o language stacks
+  "name": "smart-contract-sandbox",
+  "image": "docker.io/charleshetterich/polkavm-dev:0.1", // plain Ubuntu w/o language stacks
   "remoteUser": "vscode",
   "features": {
     // npm/node
@@ -17,7 +17,7 @@
   },
 
   // Install additional dependencies
-  // - cmake
+  // - cmake (not sure we need cmake anymore since we build the polkadot-sdk stuff elsewhere)
   "postCreateCommand": "sudo apt-get update && sudo apt-get install -y cmake && sudo chown -R vscode:vscode /home/vscode/.npm",
 
   // Optimize rebuilds w/ mounted caches (necessary/good?)
@@ -39,5 +39,5 @@
         "editor.formatOnSave": true
       }
     }
-  },
+  }
 }

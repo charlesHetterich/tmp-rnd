@@ -7,10 +7,6 @@ ARG USER_HOME=/home/vscode
 # Rust toolchain & build deps already installed by the rust Feature layer.
 # Add a couple of system libs substrate still needs at link‑time.
 RUN apt-get update && apt install --assume-yes git clang curl libssl-dev protobuf-compiler
-    # DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-    #   clang pkg-config libssl-dev && \
-    #         protobuf-compiler cmake \
-    # rm -rf /var/lib/apt/lists/*
 
 USER vscode
 RUN rustup update stable && \
