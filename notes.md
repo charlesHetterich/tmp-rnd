@@ -24,3 +24,9 @@ newgrp docker                # re‑eval groups without logging out
 ```
 
 - VSCode Dev Containers plugin
+
+# Setting up Paseo test address w/ subkey
+
+1. currently need to convert Multi address to Paseo address [here](https://polkadot.subscan.io/tools/format_transform)
+   - It looks like address is exactly the same as polkadot address ?
+2. then paste into [faucet](https://faucet.polkadot.io/)

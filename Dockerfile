@@ -32,6 +32,10 @@ RUN RESOLC_URL=$(curl -s https://api.github.com/repos/paritytech/revive/releases
     curl -L $RESOLC_URL -o $USER_HOME/resolc-x86_64-unknown-linux-musl && \
     chmod +x $USER_HOME/resolc-x86_64-unknown-linux-musl
 
+# 4) (doing everything else here b/c we don't want to repeat earlier steps)
+RUN rustup toolchain install nightly --component rust-src && \
+    cargo +nightly build --release --package subkey          # produces target/release/subkey
+
 # ---------- runtime stage ----------------------------------------------------
 FROM mcr.microsoft.com/devcontainers/base:ubuntu-22.04
 
@@ -43,3 +47,6 @@ WORKDIR $USER_HOME
 COPY --from=builder ${USER_HOME}/polkadot-sdk/target/release/substrate-node $USER_HOME/polkadot-sdk/target/release/substrate-node
 COPY --from=builder ${USER_HOME}/polkadot-sdk/target/release/eth-rpc        $USER_HOME/polkadot-sdk/target/release/eth-rpc
 COPY --from=builder ${USER_HOME}/resolc-x86_64-unknown-linux-musl           $USER_HOME/resolc-x86_64-unknown-linux-musl
+COPY --from=builder ${USER_HOME}/polkadot-sdk/target/release/subkey         /usr/local/bin/subkey
+
+
