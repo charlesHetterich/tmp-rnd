@@ -1,4 +1,4 @@
-addr=$(jq -r '.ss58PublicKey' address.json)
+addr=$(jq -r '.ss58PublicKey' .address.json)
 
 # fetch account data
 RAW=$(npx --yes @polkadot/api-cli \

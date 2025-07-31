@@ -1,7 +1,7 @@
 
 
-# subkey generate --network polkadot --output-type json > address.json
-addr=$(jq -r '.ss58PublicKey' address.json)
+# subkey generate --network polkadot --output-type json > .address.json
+addr=$(jq -r '.ss58PublicKey' .address.json)
 
 # ── colour / style codes ────────────────────────────────────────────────────────
 BOLD_WHITE='\033[1;97m'       # bright-white + bold  (for the address)
