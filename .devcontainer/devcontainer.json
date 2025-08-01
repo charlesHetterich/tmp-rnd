@@ -1,6 +1,6 @@
 {
   "name": "smart-contract-sandbox",
-  "image": "polkavm-dev:debug",
+  "image": "charleshetterich/polkavm-dev:0.2",
   "remoteUser": "vscode",
   "features": {
     "ghcr.io/devcontainers/features/node:1": {
