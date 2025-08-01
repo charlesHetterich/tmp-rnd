@@ -1,17 +1,18 @@
 {
   "name": "smart-contract-sandbox",
-  "image": "polkavm-dev:debug", // plain Ubuntu w/o language stacks
+  "image": "polkavm-dev:debug",
   "remoteUser": "vscode",
   "features": {
-    // npm/node
     "ghcr.io/devcontainers/features/node:1": {
       "version": "lts"
     }
   },
 
-  // Install additional dependencies
-  // - cmake (not sure we need cmake anymore since we build the polkadot-sdk stuff elsewhere)
-  "postCreateCommand": "sudo chown -R vscode:vscode /home/vscode/.npm && subkey generate",
+  // Container setup
+  "postCreateCommand": "sudo chown -R vscode:vscode /home/vscode/.npm",
+
+  // Startup script
+  "postAttachCommand": "sh ~/devcontainer-startup.sh",
 
   // Optimize rebuilds w/ mounted caches (necessary/good?)
   "mounts": [

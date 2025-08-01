@@ -1,4 +1,4 @@
-addr=$(jq -r '.ss58PublicKey' .address.json)
+addr=$(jq -r '.ss58PublicKey' ~/.address.json)
 
 # fetch account data
 RAW=$(npx --yes @polkadot/api-cli \
@@ -14,4 +14,4 @@ GREEN='\033[1;32m'
 RESET='\033[0m'
 
 # Output message
-echo "balance: ${GREEN}$BAL_PAS PAS${RESET}"
+echo "Balance: ${GREEN}$BAL_PAS PAS${RESET}"

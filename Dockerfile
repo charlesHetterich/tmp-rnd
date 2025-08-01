@@ -49,4 +49,6 @@ COPY --from=builder ${USER_HOME}/polkadot-sdk/target/release/eth-rpc        $USE
 COPY --from=builder ${USER_HOME}/resolc-x86_64-unknown-linux-musl           $USER_HOME/resolc-x86_64-unknown-linux-musl
 COPY --from=builder ${USER_HOME}/polkadot-sdk/target/release/subkey         /usr/local/bin/subkey
 
-
+# copy the scripts
+COPY ./devcontainer-startup.sh $USER_HOME/devcontainer-startup.sh
+COPY ./check-balance.sh $USER_HOME/check-balance.sh
