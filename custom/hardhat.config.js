@@ -1,11 +1,14 @@
-require('dotenv').config();
-require('@nomicfoundation/hardhat-toolbox');
-require('solidity-coverage');
-require('solidity-docgen');
-require('hardhat-contract-sizer');
+require("dotenv").config();
+require("@nomicfoundation/hardhat-toolbox");
+require("solidity-coverage");
+require("solidity-docgen");
+require("hardhat-contract-sizer");
 
-const env = process.env.ENV || 'testnet';
-const { importNetworks, readJSON } = require('@axelar-network/axelar-chains-config');
+const env = process.env.ENV || "testnet";
+const {
+    importNetworks,
+    readJSON,
+} = require("@axelar-network/axelar-chains-config");
 const chains = require(`@axelar-network/axelar-chains-config/info/${env}.json`);
 const keys = readJSON(`${__dirname}/keys.json`);
 const { networks, etherscan } = importNetworks(chains, keys);
@@ -29,9 +32,9 @@ const optimizerSettings = {
 };
 // For contracts that are fixed to a specific version, we fix the compiler settings as well
 const fixedContractCompilerSettings = {
-    version: '0.8.21',
+    version: "0.8.21",
     settings: {
-        evmVersion: process.env.EVM_VERSION || 'london',
+        evmVersion: process.env.EVM_VERSION || "london",
         optimizer: {
             ...optimizerSettings,
             runs: 1000,
@@ -39,16 +42,16 @@ const fixedContractCompilerSettings = {
     },
 };
 const compilerSettings = {
-    version: '0.8.27',
+    version: "0.8.27",
     settings: {
-        evmVersion: process.env.EVM_VERSION || 'london',
+        evmVersion: process.env.EVM_VERSION || "london",
         optimizer: optimizerSettings,
     },
 };
 const itsCompilerSettings = {
-    version: '0.8.27',
+    version: "0.8.27",
     settings: {
-        evmVersion: process.env.EVM_VERSION || 'london',
+        evmVersion: process.env.EVM_VERSION || "london",
         optimizer: {
             ...optimizerSettings,
             runs: 100,
@@ -67,20 +70,26 @@ module.exports = {
             ? {}
             : {
                   // Fix the proxy bytecodes
-                  'contracts/proxies/InterchainProxy.sol': fixedContractCompilerSettings,
-                  'contracts/proxies/TokenManagerProxy.sol': fixedContractCompilerSettings,
+                  "contracts/proxies/InterchainProxy.sol":
+                      fixedContractCompilerSettings,
+                  "contracts/proxies/TokenManagerProxy.sol":
+                      fixedContractCompilerSettings,
 
                   // Fix the InterchainToken bytecode to avoid having multiple token versions in the wild
-                  'contracts/interchain-token/InterchainToken.sol': fixedContractCompilerSettings,
-                  'contracts/hyperliquid/HyperliquidInterchainToken.sol': fixedContractCompilerSettings,
+                  "contracts/interchain-token/InterchainToken.sol":
+                      fixedContractCompilerSettings,
+                  "contracts/hyperliquid/HyperliquidInterchainToken.sol":
+                      fixedContractCompilerSettings,
 
                   // Reduce bytecode size for ITS contracts to stay under the limit
-                  'contracts/test/TestInterchainTokenService.sol': itsCompilerSettings,
-                  'contracts/InterchainTokenService.sol': itsCompilerSettings,
-                  'contracts/hyperliquid/HyperliquidInterchainTokenService.sol': itsCompilerSettings,
+                  "contracts/test/TestInterchainTokenService.sol":
+                      itsCompilerSettings,
+                  "contracts/InterchainTokenService.sol": itsCompilerSettings,
+                  "contracts/hyperliquid/HyperliquidInterchainTokenService.sol":
+                      itsCompilerSettings,
               },
     },
-    defaultNetwork: 'hardhat',
+    defaultNetwork: "hardhat",
     networks,
     etherscan,
     mocha: {
@@ -88,16 +97,16 @@ module.exports = {
     },
     gasReporter: {
         enabled: process.env.REPORT_GAS !== undefined,
-        excludeContracts: ['contracts/test'],
+        excludeContracts: ["contracts/test"],
     },
     contractSizer: {
         runOnCompile: process.env.CHECK_CONTRACT_SIZE,
         strict: process.env.CHECK_CONTRACT_SIZE,
-        except: ['contracts/test'],
+        except: ["contracts/test"],
     },
     docgen: {
-        path: 'docs',
+        path: "docs",
         clear: true,
-        pages: 'files',
+        pages: "files",
     },
 };
