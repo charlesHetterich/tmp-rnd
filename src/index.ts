@@ -1,56 +1,60 @@
 #!/usr/bin/env node
-type Candidate = { text: string; desc?: string };
+
+import chalk from "chalk";
+
+type Candidate = { insert: string; display?: string };
 
 const COMMANDS: Candidate[] = [
-    { text: "list", desc: "List things" },
-    { text: "fetch", desc: "Fetch a thing" },
-    { text: "init", desc: "Initialize project" },
-    { text: "WHAT", desc: "random" },
+    { insert: "fetch", display: "Fetch a thing" },
+    { insert: "init", display: "Initialize project" },
+    { insert: "list", display: "List things" },
+    { insert: "no wayl..", display: "random" },
 ];
 
 function compute(tokens: string[], cur: string): Candidate[] {
-    // Remove leading executable if present
     if (tokens[0] === "dot") tokens = tokens.slice(1);
-
-    // Only root-level completion for now
-    const prefix = cur ?? "";
-    return COMMANDS.filter((c) => c.text.startsWith(prefix));
-}
-
-function isCompleteMode(argv: string[]): boolean {
-    return argv[2] === "__complete";
-}
-
-function printForShell(shell: string, items: Candidate[]) {
-    // zsh-only for now
-    for (const it of items) {
-        // print exactly one line; zsh shim expects "name<TAB>desc"
-        if (it.desc) process.stdout.write(`${it.text}\t${it.desc}\n`);
-        else process.stdout.write(`${it.text}\n`);
-    }
+    const p = cur ?? "";
+    return COMMANDS.filter((c) => c.insert.startsWith(p));
 }
 
 function tokensFromArgv(argv: string[]): string[] {
-    const sep = argv.indexOf("--");
-    return sep >= 0 ? argv.slice(sep + 1) : [];
+    const i = argv.indexOf("--");
+    return i >= 0 ? argv.slice(i + 1) : [];
 }
 
 function main() {
     const argv = process.argv;
 
-    if (isCompleteMode(argv)) {
+    if (argv[2] === "__complete") {
         const shell = argv[3] || "zsh";
-        // Example call shapes:
-        //   dot __complete bash --cur <frag> -- <tokens...>
         const curIdx = argv.indexOf("--cur");
-        const cur = curIdx >= 0 ? argv[curIdx + 1] || "" : "";
+        let cur = curIdx >= 0 ? argv[curIdx + 1] || "" : "";
         const toks = tokensFromArgv(argv);
+
+        // if a numeric index ever leaks in, map to fragment
+        if (/^\d+$/.test(cur)) {
+            const i = parseInt(cur, 10) - 1;
+            cur = toks[i] ?? cur;
+        }
+
         const items = compute(toks, cur);
-        printForShell(shell, items);
+
+        if (shell === "zsh") {
+            // header first
+            process.stdout.write(`HEADER\t${chalk.green("dot commands")}\n`);
+            // each item: <insert>\t<display>
+            for (const it of items) {
+                const display = it.display ?? it.insert;
+                process.stdout.write(`${it.insert}\t${display}\n`);
+            }
+        } else {
+            // fallback: plain names
+            for (const it of items) process.stdout.write(`${it.insert}\n`);
+        }
         return;
     }
 
-    // Dummy handlers for the three commands
+    // normal handlers
     const cmd = argv[2];
     switch (cmd) {
         case "list":

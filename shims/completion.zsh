@@ -1,39 +1,41 @@
-# dot zsh completion (sourceable)
+# dot zsh completion (sourceable, scoped)
 
-autoload -Uz compinit && compinit -i
-zmodload zsh/complist 2>/dev/null   # menu-select UI
+# Initialize only if completion isn't already loaded
+if ! typeset -p _comps &>/dev/null; then
+  autoload -Uz compinit && compinit -i
+fi
+zmodload -i zsh/complist 2>/dev/null
 
-# Pretty headers & menu
+# ----- SCOPED styles (only when completing `dot`) -----
 zstyle ':completion:*:*:dot:*' group-name ''
-zstyle ':completion:*:descriptions' format '%F{green}-- %d --%f'
-zstyle ':completion:*' menu select
-# Bias toward one-per-line:
-zstyle ':completion:*' list-rows-first 'no'
-zstyle ':completion:*' list-packed 'no'
+zstyle ':completion:*:*:dot:*' menu select
+zstyle ':completion:*:*:dot:*' list-rows-first 'no'
+zstyle ':completion:*:*:dot:*' list-packed 'no'
+zstyle ':completion:*:*:dot:*:descriptions' format '%F{green}-- %d --%f'
 
 _dot() {
   emulate -L zsh
 
   local -a lines pairs
+  local header='' line insert display
   local curfrag=${words[$CURRENT]}
 
-  # ask your CLI; expects "name<TAB>desc" per line (desc optional)
-  lines=("${(@f)$(dot __complete zsh --cur "$curfrag" -- "${words[@]}" 2>/dev/null)}")
+  lines=("${(@f)$(dot __complete zsh --cur "$curfrag" -- "${words[@]}" 2>/dev/null)}") || return 1
   (( $#lines )) || return 1
 
-  local line name desc
   for line in $lines; do
-    name=${line%%$'\t'*}
-    if [[ $line == *$'\t'* ]]; then
-      desc=${line#*$'\t'}
-      pairs+="$name: -- ${desc}"     # render as: name  -- desc
-    else
-      pairs+="$name"
+    if [[ $line == 'HEADER'$'\t'* ]]; then
+      header=${line#*$'\t'}
+      continue
     fi
+    insert=${line%%$'\t'*}
+    display=${line#*$'\t'}
+    [[ $display == $insert ]] && display=''
+    pairs+="$insert:${display}"
   done
 
-  # `_describe` ensures the *name* is inserted, desc shown to the right
-  _describe -t dotcmds 'dot commands' pairs
+  # Tag is dotcmds; lets us scope styles even more tightly if wanted
+  _describe -t dotcmds "$header" pairs
 }
 
 compdef _dot dot
