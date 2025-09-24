@@ -22,9 +22,11 @@ function isCompleteMode(argv: string[]): boolean {
 }
 
 function printForShell(shell: string, items: Candidate[]) {
-    const withDesc = shell === "zsh" || shell === "fish";
+    // zsh-only for now
     for (const it of items) {
-        console.log(`${it.text}\t${it.desc}\n`);
+        // print exactly one line; zsh shim expects "name<TAB>desc"
+        if (it.desc) process.stdout.write(`${it.text}\t${it.desc}\n`);
+        else process.stdout.write(`${it.text}\n`);
     }
 }
 

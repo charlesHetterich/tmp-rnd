@@ -1,43 +1,39 @@
 # dot zsh completion (sourceable)
 
-# Initialize completion (idempotent)
 autoload -Uz compinit && compinit -i
+zmodload zsh/complist 2>/dev/null   # menu-select UI
 
-# Pretty output like bun's script
-zstyle ':completion:*:*:dot:*' group-name ''                  # keep groups separate
+# Pretty headers & menu
+zstyle ':completion:*:*:dot:*' group-name ''
 zstyle ':completion:*:descriptions' format '%F{green}-- %d --%f'
-zstyle ':completion:*' menu select                            # arrow-key selection
-# Optional layout tweaks:
-# zstyle ':completion:*' list-rows-first 'yes'
-# zstyle ':completion:*' list-packed 'no'
+zstyle ':completion:*' menu select
+# Bias toward one-per-line:
+zstyle ':completion:*' list-rows-first 'no'
+zstyle ':completion:*' list-packed 'no'
 
-# The completion function for `dot`
 _dot() {
   emulate -L zsh
 
-  local -a lines items descs
-  local curfrag="${words[$CURRENT]}"   # <-- the actual fragment being completed
+  local -a lines pairs
+  local curfrag=${words[$CURRENT]}
 
-  # Ask your CLI. It should print "item<TAB>desc" lines for zsh.
-  # IMPORTANT: pass tokens as separate args with "${words[@]}"
+  # ask your CLI; expects "name<TAB>desc" per line (desc optional)
   lines=("${(@f)$(dot __complete zsh --cur "$curfrag" -- "${words[@]}" 2>/dev/null)}")
-  (( ${#lines} )) || return 1
+  (( $#lines )) || return 1
 
-  local l
-  for l in $lines; do
-    if [[ $l == *$'\t'* ]]; then
-      items+="${l%%$'\t'*}"
-      descs+="${l#*$'\t'}"
+  local line name desc
+  for line in $lines; do
+    name=${line%%$'\t'*}
+    if [[ $line == *$'\t'* ]]; then
+      desc=${line#*$'\t'}
+      pairs+="$name: -- ${desc}"     # render as: name  -- desc
     else
-      items+="$l"
-      descs+=""
+      pairs+="$name"
     fi
   done
 
-  # One group with a green header
-  compadd -J dotcmds -X 'dot commands' -d descs -- $items
-  return 0
+  # `_describe` ensures the *name* is inserted, desc shown to the right
+  _describe -t dotcmds 'dot commands' pairs
 }
 
-# Bind function to command
 compdef _dot dot
