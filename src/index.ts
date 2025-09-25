@@ -6,6 +6,8 @@ type Candidate = { insert: string; display?: string };
 
 const COMMANDS: Candidate[] = [
     { insert: "fetch", display: "Fetch a thing" },
+    { insert: "fetcher", display: "Fetch aNOTHER thing" },
+    { insert: "fender", display: "you know the bender" },
     { insert: "init", display: "Initialize project" },
     { insert: "list", display: "List things" },
     { insert: "no wayl..", display: "random" },
