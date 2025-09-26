@@ -6,12 +6,8 @@ fi
 zmodload -i zsh/complist 2>/dev/null
 
 # Only affect `dot`
+zstyle ':completion:*:*:dot:*' list-colors '=(#b)(account)(*)=34'
 zstyle ':completion:*:*:dot:*' group-name ''
-zstyle ':completion:*:*:dot:*' menu select=2
-zstyle ':completion:*:*:dot:*' autolist always
-zstyle ':completion:*:*:dot:*' list-ambiguous yes
-zstyle ':completion:*:*:dot:*' list-rows-first 'no'
-zstyle ':completion:*:*:dot:*' list-packed 'no'
 zstyle ':completion:*:*:dot:*:descriptions' format '%F{green}-- %d --%f'
 
 # NOTE: Graphviz ships a _dot completer; avoid collisions.
@@ -28,12 +24,13 @@ _dot_pd() {
 
   case $state in
     seg)
-      # Ask your CLI; each line:  INSERT<TAB>DISPLAY
+      # Ask your CLI; each line:  INSERT<US>DISPLAY  (US = \x1F)
       lines=("${(@f)$(dot __complete zsh --cur "$curfrag" -- "${words[@]}" 2>/dev/null)}") || return 1
       (( $#lines )) || return 1
 
       # Parse protocol; don't use the reserved name "line" here
       local row insert display
+      local SEP=$'\x1F'
       for row in $lines; do
         if [[ $row == 'HEADER'$'\t'* ]]; then
           header=${row#*$'\t'}
@@ -42,30 +39,18 @@ _dot_pd() {
         elif [[ $row == 'FILES'$'\t'* ]]; then
           want_files=${row#*$'\t'}   # 'DIRS' or 'FILES'
         else
-          insert=${row%%$'\t'*}
-          display=${row#*$'\t'}
+          insert=${row%%${SEP}*}
+          display=${row#*${SEP}}
           [[ $display == $insert ]] && display=''
           items+="$insert"
           descs+="$display"
         fi
       done
 
-      # Non-selectable docs above the list
-      local n
-      for n in $notes; do
-        compadd -X "$n"
-        ret=0
-      done
-
-      # Single match -> insert immediately
-      if (( $#items == 1 )); then
-        compadd -U -- "$items[1]" && return 0
-      fi
-
-      # Hand matches to zsh in the requested tag; this is the key
+      # Hand matches to zsh; force one-per-line and keep header/group
       if (( $#items )); then
-        local expl
-        _wanted dotcmds expl "$header" compadd -d descs -- $items && ret=0
+        _wanted dotcmds expl "$header" \
+          compadd -1 -d descs -- $items && ret=0
       fi
 
       # Optional fallback to native file/dir completion
