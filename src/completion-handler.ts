@@ -12,8 +12,9 @@ function completion(toks: string[], frag: string): Candidate[] {
     let cmd = program;
     const parts = toks[0] === program.name() ? toks.slice(1) : toks;
 
-    // walk subcommands using tokens before the fragment
-    for (const t of parts.slice(0, -1)) {
+    // ✅ If frag is empty (fish after-space), include the last token in the walk.
+    const walk = frag === "" ? parts : parts.slice(0, -1);
+    for (const t of walk) {
         const sub = cmd.commands.find(
             (c) => !isHidden(c) && (c.name() === t || c.aliases().includes(t))
         );
