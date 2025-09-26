@@ -1,38 +1,32 @@
-# dot zsh completion (sourceable, non-invasive)
+# dot zsh completion (dynamic header color + single-line note)
 
 if ! typeset -p _comps &>/dev/null; then
   autoload -Uz compinit && compinit -i
 fi
 zmodload -i zsh/complist 2>/dev/null
 
-# Only affect `dot`
-zstyle ':completion:*:*:dot:*' list-colors '=(#b)(account)(*)=34'
-zstyle ':completion:*:*:dot:*' group-name ''
-zstyle ':completion:*:*:dot:*:descriptions' format '%F{green}-- %d --%f'
-
-# NOTE: Graphviz ships a _dot completer; avoid collisions.
 _dot_pd() {
   emulate -L zsh
+  setopt typeset_silent
   local curcontext="$curcontext" state
   local -a lines items descs notes
-  local header='dot commands' want_files=''
+  local header='dot commands' want_files='' color=''
   local curfrag=${words[$CURRENT]}
   local ret=1
 
-  # Put zsh into completion "argument" state (bun does this)
   _arguments -C '*: :->seg'
 
   case $state in
     seg)
-      # Ask your CLI; each line:  INSERT<US>DISPLAY  (US = \x1F)
       lines=("${(@f)$(dot __complete zsh --cur "$curfrag" -- "${words[@]}" 2>/dev/null)}") || return 1
       (( $#lines )) || return 1
 
-      # Parse protocol; don't use the reserved name "line" here
       local row insert display
       local SEP=$'\x1F'
       for row in $lines; do
-        if [[ $row == 'HEADER'$'\t'* ]]; then
+        if [[ $row == 'COLOR'$'\t'* ]]; then
+          color=${row#*$'\t'}
+        elif [[ $row == 'HEADER'$'\t'* ]]; then
           header=${row#*$'\t'}
         elif [[ $row == 'NOTE'$'\t'* ]]; then
           notes+=("${row#*$'\t'}")
@@ -47,17 +41,34 @@ _dot_pd() {
         fi
       done
 
-      # Hand matches to zsh; force one-per-line and keep header/group
+      # Dynamic header color just for this invocation
+      local oldfmt
+      zstyle -s ':completion:*:*:dot:*:descriptions' format oldfmt
+      local newfmt='%F{green}-- %d --%f'
+      [[ -n $color ]] && newfmt="%F{$color}-- %d --%f"
+      zstyle ':completion:*:*:dot:*:descriptions' format "$newfmt"
+
       if (( $#items )); then
         _wanted dotcmds expl "$header" \
           compadd -1 -d descs -- $items && ret=0
       fi
 
-      # Optional fallback to native file/dir completion
+      if (( ! $#items && $#notes )); then
+        _message "$notes[1]"
+        ret=1
+      fi
+
       if [[ $want_files == DIRS ]]; then
         _files -/ && ret=0
       elif [[ $want_files == FILES ]]; then
         _files && ret=0
+      fi
+
+      # Restore style
+      if [[ -n $oldfmt ]]; then
+        zstyle ':completion:*:*:dot:*:descriptions' format "$oldfmt"
+      else
+        zstyle -d ':completion:*:*:dot:*:descriptions' format
       fi
 
       return $ret
@@ -65,6 +76,5 @@ _dot_pd() {
   esac
 }
 
-# Unbind any existing completer for `dot` (e.g., Graphviz), bind ours
 compdef -d dot
 compdef _dot_pd dot
