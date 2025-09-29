@@ -35,6 +35,7 @@ if command -v bash >/dev/null 2>&1; then
 
   # Ensure non-login bash picks it up
   append_once "$HOME/.bashrc" '[ -f "$HOME/.polkadot/shims/completion.bash" ] && . "$HOME/.polkadot/shims/completion.bash"'
+  append_once "$HOME/.bashrc" 'export PATH="$HOME/.polkadot/bin:$PATH"'
   # Ensure login bash (Terminal on macOS) picks it up
   append_once "$HOME/.bash_profile" '[ -f "$HOME/.bashrc" ] && . "$HOME/.bashrc"'
   echo "bash completion installed"
@@ -44,6 +45,7 @@ fi
 if command -v zsh >/dev/null 2>&1; then
   curl -fsSL "$RAW_BASE/completion.zsh" -o "$POLKADOT_DIR/shims/completion.zsh"
   append_once "$HOME/.zshrc" '[ -f "$HOME/.polkadot/shims/completion.zsh" ] && . "$HOME/.polkadot/shims/completion.zsh"'
+  append_once "$HOME/.zshrc" 'export PATH="$HOME/.polkadot/bin:$PATH"'
   echo "zsh completion installed"
 fi
 
@@ -54,3 +56,4 @@ if command -v fish >/dev/null 2>&1; then
   ln -sf "$POLKADOT_DIR/shims/completion.fish" "$HOME/.config/fish/completions/dot.fish"
   echo "fish completion installed"
 fi
+
