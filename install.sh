@@ -22,6 +22,11 @@ echo "Installed $BIN ($OS/$ARCH) from $TAG -> $HOME/.polkadot/bin/$BIN"
 # 2) Installation of completion shims
 RAW_BASE="https://raw.githubusercontent.com/$OWNER/$REPO/main/shims"  # swap to tag or new repo when you move
 
+append_once() { # append $2 to file $1 if not already present
+  local file="$1" line="$2"
+  grep -Fqx "$line" "$file" 2>/dev/null || printf "\n%s\n" "$line" >> "$file"
+}
+
 # bash
 if command -v bash >/dev/null 2>&1; then
   mkdir -p "$HOME/.config/polkadot"
