@@ -3,7 +3,6 @@ import { program } from "./command-structure";
 
 const isHidden = (c: Command) => Boolean((c as any)._hidden);
 const isFlag = (s: string) => s.startsWith("-");
-const starts = (s: string, frag: string) => (frag ? s.startsWith(frag) : true);
 
 type Candidate = { insert: string; display?: string };
 type CompletionResult = {

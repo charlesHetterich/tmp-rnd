@@ -1,0 +1,129 @@
+# .github/workflows/release.yml
+name: release
+
+on:
+    push:
+        branches: [release]
+    workflow_dispatch:
+
+permissions:
+    contents: write
+
+jobs:
+    build:
+        name: build ${{ matrix.os }} / ${{ matrix.arch }}
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    # Linux
+                    - os: linux # -> dot-linux-amd64
+                      arch: amd64
+                      runs_on: ubuntu-latest
+                    - os: linux # -> dot-linux-arm64
+                      arch: arm64
+                      runs_on: ubuntu-24.04-arm
+
+                    # macOS
+                    # Intel x64 runners are macos-13; Apple Silicon is macos-14.
+                    - os: macos # -> dot-macos-amd64
+                      arch: amd64
+                      runs_on: macos-13
+                    - os: macos # -> dot-macos-arm64
+                      arch: arm64
+                      runs_on: macos-14
+
+                    # Windows
+                    - os: windows # -> dot-windows-amd64.exe
+                      arch: amd64
+                      runs_on: windows-latest
+                    - os: windows # -> dot-windows-arm64.exe
+                      arch: arm64
+                      runs_on: windows-11-arm # if unavailable in your org, switch to a self-hosted ARM runner
+
+        runs-on: ${{ matrix.runs_on }}
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - uses: oven-sh/setup-bun@v2
+              with:
+                  bun-version: "1.1.20"
+
+            - name: Install deps
+              run: bun install --frozen-lockfile
+
+            - name: Build binary
+              shell: bash
+              run: |
+                  set -euo pipefail
+                  mkdir -p dist
+
+                  OS="${{ matrix.os }}"
+                  ARCH="${{ matrix.arch }}"
+
+                  # asset name
+                  OUT="dot-${OS}-${ARCH}"
+                  if [ "$OS" = "windows" ]; then OUT="${OUT}.exe"; fi
+
+                  # Build (native — matrix selects the right host arch)
+                  bun build src/index.ts --compile --outfile "dist/${OUT}"
+
+                  # Smoke test (non-Windows)
+                  if [ "$OS" != "windows" ]; then
+                    chmod +x "dist/${OUT}"
+                    "./dist/${OUT}" --help || true
+                  fi
+
+            - name: Checksums
+              shell: bash
+              run: |
+                  set -euo pipefail
+                  cd dist
+                  if [ "${{ matrix.os }}" = "windows" ]; then
+                    certutil -hashfile *.exe SHA256 > SHA256SUMS.txt
+                  else
+                    shasum -a 256 * > SHA256SUMS.txt
+                  fi
+
+            - uses: actions/upload-artifact@v4
+              with:
+                  name: ${{ matrix.os }}-${{ matrix.arch }}
+                  path: dist/*
+
+    release:
+        name: create release
+        needs: build
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/download-artifact@v4
+              with:
+                  path: dist
+
+            - name: Gather files
+              run: |
+                  set -euo pipefail
+                  mkdir -p upload
+                  find dist -type f -print -exec mv {} upload/ \;
+
+            - name: Combine checksums
+              run: |
+                  set -euo pipefail
+                  cd upload
+                  sha256sum * > SHA256SUMS.txt || true
+
+            - name: Compute tag
+              id: tag
+              shell: bash
+              run: |
+                  # Tag per commit on release branch, e.g. rel-release-<shortsha>
+                  echo "tag=rel-${GITHUB_REF_NAME}-$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+
+            - name: Create GitHub Release
+              uses: softprops/action-gh-release@v2
+              with:
+                  tag_name: ${{ steps.tag.outputs.tag }} # created if missing
+                  target_commitish: ${{ github.sha }} # point at this branch commit
+                  generate_release_notes: true
+                  prerelease: false
+                  files: upload/*

@@ -4,12 +4,13 @@ import { handleComplete } from "./completion-handler";
 async function main() {
     const argv = process.argv;
 
-    // Bypass Commander entirely for __complete so it never shows up in help
+    // Intercept for autocompletion command
     if (argv[2] === "__complete") {
         handleComplete(argv);
         process.exit(0);
     }
 
+    // Regular CLI command
     await program.parseAsync(argv);
 }
 
