@@ -101,7 +101,7 @@ function completion(toks: string[], frag: string): CompletionResult {
             )
             .map((c) => ({
                 insert: c.name(),
-                display: `-- ${c.description()}`,
+                display: `${c.description()}`,
             })),
         headerColor: "green",
     };
@@ -119,8 +119,7 @@ function printCompletion(
     const max = items.reduce((m, it) => Math.max(m, it.insert.length), 0);
     for (const it of items) {
         const desc = it.display ?? "";
-        const aligned = `${it.insert.padEnd(max + 2)}${desc}`;
-        process.stdout.write(`${it.insert}\x1F${aligned}\n`);
+        process.stdout.write(`${it.insert}\x1F${desc}\n`);
     }
 }
 
