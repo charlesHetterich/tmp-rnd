@@ -162,33 +162,3 @@ account
     .action(printInvocation("account configure"));
 
 program.addCommand(account);
-
-program
-    .addCommand(
-        new Command("bulla")
-            .action(() => {
-                console.log("go away");
-            })
-            .description("alright this is a description buddy")
-    )
-    .addCommand(
-        new Command("bellydanceing")
-            .action(() => {
-                console.log("go away");
-            })
-            .description("daincing")
-    )
-    .addCommand(
-        new Command("bristol")
-            .action(() => {
-                console.log("go away");
-            })
-            .description("place in england?")
-    )
-    .addCommand(
-        new Command("belt")
-            .action(() => {
-                console.log("go away");
-            })
-            .description("belts keep ur pants on")
-    );
