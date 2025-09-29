@@ -113,8 +113,10 @@ jobs:
               id: tag
               shell: bash
               run: |
-                  # Tag per commit on release branch, e.g. rel-release-<shortsha>
-                  echo "tag=rel-${GITHUB_REF_NAME}-$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+                  SHORT_SHA="${GITHUB_SHA::7}"
+                  DATE="$(date -u +%Y%m%d)"
+                  TAG="rel-${GITHUB_REF_NAME}-${DATE}-${SHORT_SHA}"
+                  echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
 
             - name: Create GitHub Release
               uses: softprops/action-gh-release@v2
