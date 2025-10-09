@@ -1,5 +1,6 @@
 // cli-spec.ts
 import { Command, Option } from "commander";
+import { initFoundry, initHardHat, initInk } from "./commands";
 
 const fqName = (cmd: Command) => {
     const parts: string[] = [];
@@ -83,12 +84,29 @@ const initCommonFlags = [
     new Option("--template-only", "Only fetch template files (skip env setup)"),
 ];
 
-init.command("contracts")
+const initContracts = init
+    .command("contracts")
     .description("Initialize a smart-contracts project")
-    .argument("<dir>", "target project directory")
     .addOption(initCommonFlags[0])
-    .addOption(initCommonFlags[1])
-    .action(printInvocation("init contracts"));
+    .addOption(initCommonFlags[1]);
+
+initContracts
+    .command("hardhat")
+    .description("Initialize a Hardhat smart-contracts project")
+    .argument("<dir>", "target project directory")
+    .action(initHardHat);
+
+initContracts
+    .command("foundry")
+    .description("Initialize a Foundry smart-contracts project")
+    .argument("<dir>", "target project directory")
+    .action(initFoundry);
+
+initContracts
+    .command("ink")
+    .description("Initialize an ink! smart-contracts project")
+    .argument("<dir>", "target project directory")
+    .action(initInk);
 
 init.command("dapp")
     .description("Initialize a dapp project")
