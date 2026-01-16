@@ -1,1 +1,0 @@
-pnpm dlx tsx /home/ubuntu/hardhat-polkadot/packages/hardhat-polkadot/src/cli port "$1" "$2"

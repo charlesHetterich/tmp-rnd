@@ -1,9 +1,0 @@
-[package]
-name = "polkavm_disasm"
-version = "0.1.0"
-edition = "2024"
-
-[dependencies]
-anyhow = "1"
-polkavm = "0.30"
-polkavm-disassembler = "0.30"
