@@ -8,12 +8,121 @@ BULLETIN_DIR="$DIR/.polkadot-bulletin-chain"
 
 mkdir -p "$BIN"
 
+install_system_deps() {
+    echo "Checking system dependencies..."
+
+    # Detect OS
+    if [[ "$(uname -s)" == "Linux" ]]; then
+        # Check if we need to install packages
+        local MISSING_PKGS=()
+
+        dpkg -s libclang-dev &>/dev/null || MISSING_PKGS+=(libclang-dev)
+        dpkg -s llvm &>/dev/null || MISSING_PKGS+=(llvm)
+        dpkg -s libssl-dev &>/dev/null || MISSING_PKGS+=(libssl-dev)
+        dpkg -s pkg-config &>/dev/null || MISSING_PKGS+=(pkg-config)
+        dpkg -s cmake &>/dev/null || MISSING_PKGS+=(cmake)
+        dpkg -s protobuf-compiler &>/dev/null || MISSING_PKGS+=(protobuf-compiler)
+        dpkg -s git &>/dev/null || MISSING_PKGS+=(git)
+        dpkg -s curl &>/dev/null || MISSING_PKGS+=(curl)
+
+        if [[ ${#MISSING_PKGS[@]} -gt 0 ]]; then
+            echo "Installing missing packages: ${MISSING_PKGS[*]}"
+            sudo apt-get update
+            sudo apt-get install -y "${MISSING_PKGS[@]}"
+        else
+            echo "All system packages are installed."
+        fi
+    elif [[ "$(uname -s)" == "Darwin" ]]; then
+        # macOS - use Homebrew
+        if ! command -v brew &>/dev/null; then
+            echo "Error: Homebrew is required on macOS. Install from https://brew.sh"
+            exit 1
+        fi
+        brew install llvm openssl cmake protobuf git curl 2>/dev/null || true
+    fi
+}
+
+install_rust() {
+    if ! command -v rustup &>/dev/null; then
+        echo "Installing Rust via rustup..."
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+        source "$HOME/.cargo/env"
+    else
+        echo "Rust is already installed."
+    fi
+}
+
+install_zombienet() {
+    if command -v zombienet &>/dev/null; then
+        echo "Zombienet is already installed: $(zombienet version)"
+        return
+    fi
+
+    # Fetch latest version from GitHub API
+    local ZOMBIENET_VERSION
+    ZOMBIENET_VERSION=$(curl -s https://api.github.com/repos/paritytech/zombienet/releases/latest | grep '"tag_name"' | sed -E 's/.*"([^"]+)".*/\1/')
+
+    if [[ -z "$ZOMBIENET_VERSION" ]]; then
+        echo "Error: Could not fetch latest zombienet version from GitHub"
+        exit 1
+    fi
+
+    echo "Installing zombienet ${ZOMBIENET_VERSION} (latest)..."
+
+    local ARCH
+    local OS
+    local ZOMBIENET_BIN
+
+    case "$(uname -s)" in
+        Linux)  OS="linux" ;;
+        Darwin) OS="macos" ;;
+        *)      echo "Unsupported OS"; exit 1 ;;
+    esac
+
+    case "$(uname -m)" in
+        x86_64)  ARCH="x64" ;;
+        aarch64|arm64) ARCH="arm64" ;;
+        *)       echo "Unsupported architecture"; exit 1 ;;
+    esac
+
+    ZOMBIENET_BIN="zombienet-${OS}-${ARCH}"
+
+    curl -L -o /tmp/zombienet "https://github.com/paritytech/zombienet/releases/download/${ZOMBIENET_VERSION}/${ZOMBIENET_BIN}"
+    chmod +x /tmp/zombienet
+
+    # Try to install to /usr/local/bin, fall back to ~/.local/bin
+    if sudo mv /tmp/zombienet /usr/local/bin/zombienet 2>/dev/null; then
+        echo "Zombienet installed to /usr/local/bin/zombienet"
+    else
+        mkdir -p "$HOME/.local/bin"
+        mv /tmp/zombienet "$HOME/.local/bin/zombienet"
+        echo "Zombienet installed to ~/.local/bin/zombienet"
+        echo "Make sure ~/.local/bin is in your PATH"
+        export PATH="$HOME/.local/bin:$PATH"
+    fi
+
+    zombienet version
+}
+
 setup_build_env() {
     # macOS: ensure LLVM/clang is available for wasm builds
-    if [[ "$(uname -s)" == Darwin* ]] && command -v brew &>/dev/null; then
+    if [[ "$(uname -s)" == "Darwin" ]] && command -v brew &>/dev/null; then
         LLVM=$(brew --prefix llvm 2>/dev/null || true)
         [[ -d "$LLVM/lib" ]] && export LIBCLANG_PATH="$LLVM/lib"
     fi
+
+    # Linux: set LIBCLANG_PATH if not set
+    if [[ "$(uname -s)" == "Linux" ]] && [[ -z "$LIBCLANG_PATH" ]]; then
+        # Common locations for libclang on Linux
+        for path in /usr/lib/llvm-18/lib /usr/lib/llvm-17/lib /usr/lib/llvm-16/lib /usr/lib/llvm-15/lib /usr/lib/llvm-14/lib /usr/lib/x86_64-linux-gnu /usr/lib64; do
+            if [[ -f "$path/libclang.so" ]] || ls "$path"/libclang-*.so &>/dev/null 2>&1; then
+                export LIBCLANG_PATH="$path"
+                echo "Set LIBCLANG_PATH=$LIBCLANG_PATH"
+                break
+            fi
+        done
+    fi
+
     rustup target add wasm32-unknown-unknown 2>/dev/null || true
 }
 
@@ -101,6 +210,10 @@ echo "Polkadot Local Dev Environment Setup"
 echo "==================================="
 echo ""
 
+# Install all dependencies first
+install_system_deps
+install_rust
+install_zombienet
 setup_build_env
 
 # Build SDK from source (relay + parachain nodes)
