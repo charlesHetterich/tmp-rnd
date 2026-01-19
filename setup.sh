@@ -107,11 +107,10 @@ setup_build_env
 clone_sdk_repo
 build_sdk_binaries
 
-# Build bulletin chain (optional, for later)
-# Uncomment when ready to add bulletin parachain:
-# clone_bulletin_repo
-# build_bulletin_parachain_runtime
-# generate_bulletin_spec
+# Build bulletin chain parachain runtime
+clone_bulletin_repo
+build_bulletin_parachain_runtime
+generate_bulletin_spec
 
 echo ""
 echo "==================================="
@@ -119,9 +118,9 @@ echo "Setup complete!"
 echo "==================================="
 echo ""
 echo "Binaries in: $BIN"
-./bin/polkadot --version
-./bin/polkadot-parachain --version
+$BIN/polkadot --version
+$BIN/polkadot-parachain --version
 echo ""
 echo "To start zombienet:"
-echo "  zombienet -p native spawn zombienet-simple.toml"
+echo "  ./run.sh"
 echo ""

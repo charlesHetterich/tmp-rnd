@@ -4,13 +4,16 @@
   "type": "module",
   "scripts": {
     "start": "tsx src/index.ts",
+    "status": "tsx src/check-status.ts",
     "codegen": "papi"
   },
   "dependencies": {
     "@polkadot-api/descriptors": "file:.papi/descriptors",
-    "polkadot-api": "^1.9.5"
+    "polkadot-api": "^1.9.5",
+    "ws": "^8.18.0"
   },
   "devDependencies": {
+    "@types/ws": "^8.5.0",
     "tsx": "^4.7.0",
     "typescript": "^5.3.0"
   }
