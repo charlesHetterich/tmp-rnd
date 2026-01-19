@@ -1,2 +1,16 @@
 target/
-*.lock
+Cargo.lock
+
+# Build directories for dependencies
+.polkadot-sdk/
+.polkadot-bulletin-chain/
+
+# Local binaries
+bin/
+
+runtime/
+
+node_modules/
+.papi
+
+*lock.json
