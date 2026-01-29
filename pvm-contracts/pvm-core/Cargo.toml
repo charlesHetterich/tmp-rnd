@@ -1,0 +1,13 @@
+[package]
+name = "pvm-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Runtime library for PVM smart contracts"
+
+[dependencies]
+parity-scale-codec = { workspace = true, features = ["derive"] }
+
+[target.'cfg(target_arch = "riscv64")'.dependencies]
+uapi = { package = "pallet-revive-uapi", version = "0.7", default-features = false }
+polkavm-derive = { workspace = true }
