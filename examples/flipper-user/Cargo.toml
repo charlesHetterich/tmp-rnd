@@ -9,8 +9,11 @@ crate-type = ["cdylib"]
 [features]
 default = []
 std = []
+pvm-as-dependency = []
 
 [dependencies]
 pvm = { workspace = true }
 polkavm-derive = { workspace = true }
 parity-scale-codec = { workspace = true, features = ["derive"] }
+# Import flipper with pvm-as-dependency to avoid duplicate allocator/entry point conflicts
+flipper = { path = "../flipper", default-features = false, features = ["pvm-as-dependency"] }

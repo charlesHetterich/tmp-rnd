@@ -30,7 +30,7 @@
 extern crate alloc;
 
 // Re-export macros
-pub use pvm_macros::{contract, storage, init, call, event};
+pub use pvm_macros::{contract, storage, init, call, event, interface};
 
 // Re-export core types and functions
 pub use pvm_core::{
@@ -45,6 +45,8 @@ pub use pvm_core::{
     return_value, revert, input,
     // Cross-contract calls
     call_contract, call_contract_with_output, MAX_OUTPUT_SIZE,
+    // Type-safe cross-contract call helpers
+    ContractCallError, encode_call_data, contract_call, call_and_decode,
     // Storage module
     storage,
     // Storage key helper

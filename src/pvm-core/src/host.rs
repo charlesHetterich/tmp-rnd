@@ -219,6 +219,7 @@ pub fn call_contract_with_output(
 
         let deposit = [0u8; 32]; // No deposit limit
 
+        let mut output_ref: &mut [u8] = output;
         api::call(
             CallFlags::empty(),
             &addr.0,
@@ -227,7 +228,7 @@ pub fn call_contract_with_output(
             &deposit,
             &value_bytes,
             data,
-            Some(output),
+            Some(&mut output_ref),
         ).map_err(|_| ())?;
 
         // Return the length of output that was written

@@ -8,6 +8,7 @@
 extern crate alloc;
 
 pub mod alloc_impl;
+pub mod call;
 pub mod host;
 pub mod storage;
 pub mod address;
@@ -35,6 +36,7 @@ pub use host::{caller, now, value_transferred, address as contract_address, bloc
 pub use host::{return_value, revert, input};
 pub use host::{call_contract, call_contract_with_output, MAX_OUTPUT_SIZE};
 pub use storage::{get_storage, set_storage, remove_storage, contains_storage};
+pub use call::{ContractCallError, encode_call_data, call as contract_call, call_and_decode};
 
 /// Event trait for contract events
 pub trait Event: Encode {
@@ -80,4 +82,18 @@ pub const fn storage_key(name: &[u8]) -> Hash {
     key[1] = key[1].wrapping_add(0x76); // 'v'
     key[2] = key[2].wrapping_add(0x6d); // 'm'
     key
+}
+
+/// Panic handler for PVM contracts
+/// Only defined when:
+/// - Building for riscv64 (actual contract)
+/// - NOT using `no-panic-handler` feature (for custom handlers)
+#[cfg(all(target_arch = "riscv64", not(feature = "no-panic-handler")))]
+#[panic_handler]
+fn pvm_panic(_info: &core::panic::PanicInfo) -> ! {
+    // Simple panic: execute invalid instruction to halt
+    unsafe {
+        core::arch::asm!("unimp");
+        core::hint::unreachable_unchecked()
+    }
 }

@@ -88,3 +88,12 @@ unsafe impl core::alloc::GlobalAlloc for PvmAllocator {
         // Bump allocator doesn't free individual allocations
     }
 }
+
+/// Global allocator instance
+/// Only defined when:
+/// - Building for riscv64 (actual contract)
+/// - NOT using std (which provides its own allocator)
+/// - NOT using `no-allocator` feature (for custom allocators)
+#[cfg(all(target_arch = "riscv64", not(feature = "std"), not(feature = "no-allocator")))]
+#[global_allocator]
+static PVM_ALLOCATOR: PvmAllocator = PvmAllocator;

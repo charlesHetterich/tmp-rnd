@@ -1,7 +1,7 @@
 //! Flipper User - Example contract that calls another contract (Flipper)
 //!
-//! This demonstrates cross-contract calls in PVM by interacting with a
-//! deployed Flipper contract.
+//! This demonstrates cross-contract calls in PVM by importing `FlipperRef`
+//! from the Flipper contract crate.
 //!
 //! Usage:
 //! 1. Deploy a Flipper contract
@@ -12,16 +12,13 @@
 
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
+// Import FlipperRef from the Flipper contract crate
+use flipper::FlipperRef;
+
 #[pvm::contract]
 mod flipper_user {
-    use pvm::{call_contract, call_contract_with_output, Address};
-
-    /// Selector for "flip" function (first 4 bytes of name)
-    /// This matches how the #[call] macro generates selectors
-    const FLIP_SELECTOR: [u8; 4] = [b'f', b'l', b'i', b'p'];
-
-    /// Selector for "get" function (first 4 bytes of name)
-    const GET_SELECTOR: [u8; 4] = [b'g', b'e', b't', 0];
+    use super::FlipperRef;
+    use pvm::Address;
 
     #[storage]
     pub struct FlipperUser {
@@ -42,37 +39,23 @@ mod flipper_user {
     /// This will toggle the boolean value stored in the Flipper
     #[call]
     pub fn call_flip(state: &FlipperUser) {
-        // Build the call data (just the selector for flip)
-        let call_data = FLIP_SELECTOR.to_vec();
-
-        // Call the Flipper contract with no value transfer
-        let _ = call_contract(&state.flipper_address, 0, &call_data);
+        let flipper = FlipperRef::new(state.flipper_address);
+        // Ignore errors for simplicity in this example
+        let _ = flipper.flip();
     }
 
     /// Call the get() method on the Flipper contract and return the result
     /// Returns the current boolean value stored in the Flipper
     #[call]
     pub fn call_get(state: &FlipperUser) -> bool {
-        // Build the call data (just the selector for get)
-        let call_data = GET_SELECTOR.to_vec();
-
-        // Buffer to receive the output
-        let mut output = [0u8; 32];
-
-        // Call the Flipper contract and get the return value
-        match call_contract_with_output(&state.flipper_address, 0, &call_data, &mut output) {
-            Ok(_) => {
-                // Decode the bool from SCALE-encoded output
-                // A SCALE-encoded bool is 1 byte: 0x00 for false, 0x01 for true
-                output[0] != 0
-            }
-            Err(_) => false,
-        }
+        let flipper = FlipperRef::new(state.flipper_address);
+        // Return false on error
+        flipper.get().unwrap_or(false)
     }
 
     /// Get the stored flipper contract address
     #[call]
-    pub fn get_flipper_address(state: &FlipperUser) -> Address {
+    pub fn get_flipper_address(state: &FlipperUser) -> pvm::Address {
         state.flipper_address
     }
 

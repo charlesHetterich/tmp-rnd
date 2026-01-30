@@ -14,6 +14,7 @@ mod storage;
 mod call;
 mod init;
 mod event;
+mod interface;
 
 /// Transforms a module into a complete PVM smart contract.
 ///
@@ -117,6 +118,29 @@ pub fn call(_attr: TokenStream, item: TokenStream) -> TokenStream {
 #[proc_macro_attribute]
 pub fn event(_attr: TokenStream, item: TokenStream) -> TokenStream {
     event::expand(item.into()).into()
+}
+
+/// Transforms a trait into a contract reference struct for cross-contract calls.
+///
+/// This macro generates a `{TraitName}Ref` struct that wraps an address and
+/// provides type-safe methods for calling the contract.
+///
+/// # Example
+/// ```ignore
+/// #[pvm::interface]
+/// pub trait Flipper {
+///     fn flip();
+///     fn get() -> bool;
+/// }
+///
+/// // Usage in another contract:
+/// let flipper = FlipperRef::new(flipper_address);
+/// let value = flipper.get()?;
+/// flipper.flip()?;
+/// ```
+#[proc_macro_attribute]
+pub fn interface(_attr: TokenStream, item: TokenStream) -> TokenStream {
+    interface::expand(item.into()).into()
 }
 
 /// Helper to compute a simple selector from a name
