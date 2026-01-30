@@ -1,10 +1,11 @@
 [workspace]
 resolver = "2"
 members = [
-    "pvm",
-    "pvm-core",
-    "pvm-macros",
+    "src/pvm",
+    "src/pvm-core",
+    "src/pvm-macros",
     "examples/flipper",
+    "examples/flipper-user",
 ]
 
 [workspace.package]
@@ -14,9 +15,9 @@ license = "MIT OR Apache-2.0"
 repository = "https://github.com/parity/pvm-contracts"
 
 [workspace.dependencies]
-pvm = { path = "pvm" }
-pvm-core = { path = "pvm-core" }
-pvm-macros = { path = "pvm-macros" }
+pvm = { path = "src/pvm" }
+pvm-core = { path = "src/pvm-core" }
+pvm-macros = { path = "src/pvm-macros" }
 parity-scale-codec = { version = "3.6", default-features = false }
 polkavm-derive = "0.30"
 

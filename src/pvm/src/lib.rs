@@ -43,6 +43,8 @@ pub use pvm_core::{
     // Host functions
     caller, now, value_transferred, contract_address, block_number,
     return_value, revert, input,
+    // Cross-contract calls
+    call_contract, call_contract_with_output, MAX_OUTPUT_SIZE,
     // Storage module
     storage,
     // Storage key helper

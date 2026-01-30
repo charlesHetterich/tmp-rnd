@@ -33,6 +33,7 @@ pub type Selector = [u8; 4];
 // Convenience re-exports from host module
 pub use host::{caller, now, value_transferred, address as contract_address, block_number};
 pub use host::{return_value, revert, input};
+pub use host::{call_contract, call_contract_with_output, MAX_OUTPUT_SIZE};
 pub use storage::{get_storage, set_storage, remove_storage, contains_storage};
 
 /// Event trait for contract events

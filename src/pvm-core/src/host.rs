@@ -2,7 +2,7 @@
 //!
 //! These functions wrap the raw host calls provided by pallet-revive-uapi.
 
-use crate::address::EvmAddress;
+use crate::address::Address;
 use crate::Balance;
 use crate::Timestamp;
 
@@ -16,32 +16,32 @@ use crate::alloc_impl;
 pub const MAX_INPUT_SIZE: usize = 8 * 1024;
 
 /// Get the caller address
-pub fn caller() -> EvmAddress {
+pub fn caller() -> Address {
     #[cfg(target_arch = "riscv64")]
     {
         let mut addr = [0u8; 20];
         api::caller(&mut addr);
-        EvmAddress(addr)
+        Address(addr)
     }
 
     #[cfg(not(target_arch = "riscv64"))]
     {
-        EvmAddress::default()
+        Address::default()
     }
 }
 
 /// Get the current contract address
-pub fn address() -> EvmAddress {
+pub fn address() -> Address {
     #[cfg(target_arch = "riscv64")]
     {
         let mut addr = [0u8; 20];
         api::address(&mut addr);
-        EvmAddress(addr)
+        Address(addr)
     }
 
     #[cfg(not(target_arch = "riscv64"))]
     {
-        EvmAddress::default()
+        Address::default()
     }
 }
 
@@ -163,9 +163,9 @@ pub fn emit_event(topics: &[[u8; 32]], data: &[u8]) {
     }
 }
 
-/// Call another contract
+/// Call another contract (no return value)
 pub fn call_contract(
-    addr: &EvmAddress,
+    addr: &Address,
     value: Balance,
     data: &[u8],
 ) -> Result<(), ()> {
@@ -196,5 +196,48 @@ pub fn call_contract(
     {
         let _ = (addr, value, data);
         Ok(())
+    }
+}
+
+/// Maximum output size for cross-contract calls
+pub const MAX_OUTPUT_SIZE: usize = 1024;
+
+/// Call another contract and get the return value
+pub fn call_contract_with_output(
+    addr: &Address,
+    value: Balance,
+    data: &[u8],
+    output: &mut [u8],
+) -> Result<usize, ()> {
+    #[cfg(target_arch = "riscv64")]
+    {
+        use uapi::CallFlags;
+
+        // Convert value to 32-byte big-endian
+        let mut value_bytes = [0u8; 32];
+        value_bytes[16..32].copy_from_slice(&value.to_be_bytes());
+
+        let deposit = [0u8; 32]; // No deposit limit
+
+        api::call(
+            CallFlags::empty(),
+            &addr.0,
+            0, // ref_time_limit
+            0, // proof_size_limit
+            &deposit,
+            &value_bytes,
+            data,
+            Some(output),
+        ).map_err(|_| ())?;
+
+        // Return the length of output that was written
+        // Note: The actual length is determined by the callee
+        Ok(output.len())
+    }
+
+    #[cfg(not(target_arch = "riscv64"))]
+    {
+        let _ = (addr, value, data, output);
+        Ok(0)
     }
 }
