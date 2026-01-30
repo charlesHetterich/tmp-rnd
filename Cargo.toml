@@ -18,7 +18,7 @@ pvm = { path = "pvm" }
 pvm-core = { path = "pvm-core" }
 pvm-macros = { path = "pvm-macros" }
 parity-scale-codec = { version = "3.6", default-features = false }
-polkavm-derive = "0.27"
+polkavm-derive = "0.30"
 
 [profile.dev]
 panic = "abort"

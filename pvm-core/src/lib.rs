@@ -61,3 +61,22 @@ pub const fn selector_from_name(name: &[u8]) -> Selector {
     }
     sel
 }
+
+/// Compute a storage key from a name (32 bytes)
+/// Uses a simple const-compatible hash for compile-time evaluation
+pub const fn storage_key(name: &[u8]) -> Hash {
+    // Simple deterministic key derivation
+    // XOR the name bytes across the 32-byte key with rotation
+    let mut key = [0u8; 32];
+    let mut i = 0;
+    while i < name.len() {
+        key[i % 32] ^= name[i];
+        key[(i + 7) % 32] ^= name[i].wrapping_add(i as u8);
+        i += 1;
+    }
+    // Add a distinguishing prefix
+    key[0] = key[0].wrapping_add(0x70); // 'p' for pvm
+    key[1] = key[1].wrapping_add(0x76); // 'v'
+    key[2] = key[2].wrapping_add(0x6d); // 'm'
+    key
+}

@@ -1,17 +1,52 @@
 //! PVM Macros - Procedural macros for PVM smart contracts
 //!
 //! This crate provides the following macros:
-//! - `#[pvm::storage]` - Marks a struct as contract storage
-//! - `#[pvm::init]` - Marks a function as the contract constructor
-//! - `#[pvm::call]` - Marks a function as callable
-//! - `#[pvm::event]` - Marks a struct as an event
+//! - `#[pvm::contract]` - Transforms a module into a complete PVM contract
+//! - `#[storage]` - Marks a struct as contract storage (inside contract module)
+//! - `#[init]` - Marks a function as the contract constructor
+//! - `#[call]` - Marks a function as callable
+//! - `#[event]` - Marks a struct as an event
 
 use proc_macro::TokenStream;
 
+mod contract;
 mod storage;
 mod call;
 mod init;
 mod event;
+
+/// Transforms a module into a complete PVM smart contract.
+///
+/// This macro generates all necessary boilerplate including:
+/// - Global allocator
+/// - Panic handler
+/// - `call` and `deploy` entry points
+/// - Selector dispatch logic
+///
+/// # Example
+/// ```ignore
+/// #![no_std]
+/// #![no_main]
+///
+/// #[pvm::contract]
+/// mod my_contract {
+///     #[storage]
+///     pub struct Counter { count: u32 }
+///
+///     #[init]
+///     pub fn new() -> Counter { Counter { count: 0 } }
+///
+///     #[call]
+///     pub fn increment(state: &mut Counter) { state.count += 1; }
+///
+///     #[call]
+///     pub fn get(state: &Counter) -> u32 { state.count }
+/// }
+/// ```
+#[proc_macro_attribute]
+pub fn contract(_attr: TokenStream, item: TokenStream) -> TokenStream {
+    contract::expand(item.into()).into()
+}
 
 /// Marks a struct as the contract's storage.
 ///

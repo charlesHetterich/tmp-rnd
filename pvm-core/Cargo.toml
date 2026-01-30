@@ -9,5 +9,5 @@ description = "Runtime library for PVM smart contracts"
 parity-scale-codec = { workspace = true, features = ["derive"] }
 
 [target.'cfg(target_arch = "riscv64")'.dependencies]
-uapi = { package = "pallet-revive-uapi", version = "0.7", default-features = false }
+uapi = { package = "pallet-revive-uapi", version = "0.10", default-features = false }
 polkavm-derive = { workspace = true }
