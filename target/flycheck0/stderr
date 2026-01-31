@@ -1,8 +1,0 @@
-error: failed to load manifest for workspace member `/home/ubuntu/tmp-rnd/src/pvm`
-referenced by workspace at `/home/ubuntu/tmp-rnd/Cargo.toml`
-
-Caused by:
-  failed to read `/home/ubuntu/tmp-rnd/src/pvm/Cargo.toml`
-
-Caused by:
-  No such file or directory (os error 2)
