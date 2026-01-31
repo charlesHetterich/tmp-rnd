@@ -1,9 +1,0 @@
-target/
-bin/
-
-*.polkavm
-*.lock
-*lock.json
-
-.cargo/
-node_modules/
