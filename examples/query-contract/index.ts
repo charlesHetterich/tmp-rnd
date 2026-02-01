@@ -15,8 +15,13 @@ import {
     mnemonicToEntropy,
 } from "@polkadot-labs/hdkd-helpers";
 import { SS58String } from "polkadot-api";
+import { ContractDeployer } from "./deployer";
+
 // Contract address from deployment
 const CONTRACT_ADDRESS = process.argv[2] || "todo!!";
+
+const deployer = new ContractDeployer("Alice");
+deployer;
 
 // Alice's SS58 address
 const ALICE_SS58 =
