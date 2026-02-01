@@ -2,9 +2,9 @@
 bash `scripts/setup.sh`
 ```
 
-build:
+build the contract:
 Generates `.polkavm` and `.abi.json` files.
 
 ```
-cargo build --release
+cargo build --release -p name-registry
 ```
