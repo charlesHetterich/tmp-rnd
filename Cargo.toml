@@ -1,20 +1,9 @@
-[package]
-name = "name-registry"
-version = "0.1.0"
-edition = "2021"
-build = "build.rs"
-
-[[bin]]
-name = "name-registry"
-path = "src/main.rs"
-
-[dependencies]
-pvm_contract = { path = "/home/ubuntu/cargo-pvm-contract/crates/pvm_contract" }
-polkavm-derive = "0.31"
-picoalloc = { version = "5.2", default-features = false }
-
-[build-dependencies]
-cargo-pvm-contract-builder = { path = "/home/ubuntu/cargo-pvm-contract/crates/cargo-pvm-contract-builder" }
+[workspace]
+resolver = "2"
+members = [
+    "crates/utils",
+    "crates/contracts/*",
+]
 
 [profile.release]
 codegen-units = 1

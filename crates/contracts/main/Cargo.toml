@@ -1,0 +1,17 @@
+[package]
+name = "name-registry"
+version = "0.1.0"
+edition = "2021"
+build = "build.rs"
+
+[[bin]]
+name = "name-registry"
+path = "main.rs"
+
+[dependencies]
+pvm_contract = { path = "/home/ubuntu/cargo-pvm-contract/crates/pvm_contract" }
+polkavm-derive = "0.31"
+utils = { path = "../../utils" }
+
+[build-dependencies]
+cargo-pvm-contract-builder = { path = "/home/ubuntu/cargo-pvm-contract/crates/cargo-pvm-contract-builder" }

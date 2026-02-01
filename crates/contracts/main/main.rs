@@ -1,16 +1,10 @@
 #![no_main]
 #![no_std]
 
+// Pull in the global allocator from utils
+extern crate utils;
+
 use pvm_contract::{contract, constructor, method, Address, U256, caller};
-
-#[global_allocator]
-static mut ALLOC: picoalloc::Mutex<picoalloc::Allocator<picoalloc::ArrayPointer<262144>>> = {
-    static mut ARRAY: picoalloc::Array<262144> = picoalloc::Array([0u8; 262144]);
-
-    picoalloc::Mutex::new(picoalloc::Allocator::new(unsafe {
-        picoalloc::ArrayPointer::new(&raw mut ARRAY)
-    }))
-};
 
 /// Simple name registry contract
 /// Allows users to register and look up names associated with addresses
@@ -30,10 +24,7 @@ mod name_registry {
     /// Initialize the contract
     #[constructor]
     pub fn new() {
-        // api::caller()
         caller();
-
-        // Nothing to initialize
     }
 
     /// Register a name for the caller's address
