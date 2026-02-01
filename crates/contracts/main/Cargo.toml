@@ -6,7 +6,7 @@ build = "build.rs"
 
 [[bin]]
 name = "name-registry"
-path = "main.rs"
+path = "src/main.rs"
 
 [dependencies]
 pvm_contract = { path = "/home/ubuntu/cargo-pvm-contract/crates/pvm_contract" }

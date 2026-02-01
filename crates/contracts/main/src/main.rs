@@ -4,11 +4,11 @@
 // Pull in the global allocator from utils
 extern crate utils;
 
-use pvm_contract::{contract, constructor, method, Address, U256, caller};
+use pvm_contract::{Address, U256, caller};
 
 /// Simple name registry contract
 /// Allows users to register and look up names associated with addresses
-#[contract]
+#[pvm_contract::contract]
 mod name_registry {
     use super::*;
     use pvm_contract::{api, StorageFlags};
@@ -22,14 +22,14 @@ mod name_registry {
     ];
 
     /// Initialize the contract
-    #[constructor]
+    #[pvm_contract::constructor]
     pub fn new() {
         caller();
     }
 
     /// Register a name for the caller's address
     /// The name is encoded as a U256 (max 32 bytes)
-    #[method]
+    #[pvm_contract::method]
     pub fn register(name: U256) {
         let caller = get_caller();
         let key = compute_key(&caller);
@@ -39,7 +39,7 @@ mod name_registry {
 
     /// Look up the name registered to an address
     /// Returns U256(0) if no name is registered
-    #[method]
+    #[pvm_contract::method]
     pub fn lookup(addr: Address) -> U256 {
         let key = compute_key(&addr);
         let mut value = [0u8; 32];
@@ -49,7 +49,7 @@ mod name_registry {
     }
 
     /// Get the name registered to the caller
-    #[method]
+    #[pvm_contract::method]
     pub fn my_name() -> U256 {
         let caller = get_caller();
         lookup(caller)
