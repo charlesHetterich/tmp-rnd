@@ -2,11 +2,10 @@
 #![no_std]
 
 use pvm_contract::{contract, constructor, method, Address, U256, caller};
-use xxhash_rust::const_xxh32::xxh32;
 
 #[global_allocator]
-static mut ALLOC: picoalloc::Mutex<picoalloc::Allocator<picoalloc::ArrayPointer<1024>>> = {
-    static mut ARRAY: picoalloc::Array<1024> = picoalloc::Array([0u8; 1024]);
+static mut ALLOC: picoalloc::Mutex<picoalloc::Allocator<picoalloc::ArrayPointer<262144>>> = {
+    static mut ARRAY: picoalloc::Array<262144> = picoalloc::Array([0u8; 262144]);
 
     picoalloc::Mutex::new(picoalloc::Allocator::new(unsafe {
         picoalloc::ArrayPointer::new(&raw mut ARRAY)
@@ -44,7 +43,6 @@ mod name_registry {
         let caller = get_caller();
         let key = compute_key(&caller);
         let value = name.to_be_bytes::<32>();
-        api::hash_keccak_256(input, output);
         api::set_storage(StorageFlags::empty(), &key, &value);
     }
 

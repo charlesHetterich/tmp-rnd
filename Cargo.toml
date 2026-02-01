@@ -12,7 +12,6 @@ path = "src/main.rs"
 pvm_contract = { path = "/home/ubuntu/cargo-pvm-contract/crates/pvm_contract" }
 polkavm-derive = "0.31"
 picoalloc = { version = "5.2", default-features = false }
-xxhash-rust = { version = "0.8" }
 
 [build-dependencies]
 cargo-pvm-contract-builder = { path = "/home/ubuntu/cargo-pvm-contract/crates/cargo-pvm-contract-builder" }
