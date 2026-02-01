@@ -23,8 +23,9 @@ mod name_registry {
 
     /// Initialize the contract
     #[pvm_contract::constructor]
-    pub fn new() {
+    pub fn new() -> Result<(), Error> {
         caller();
+        Ok(())
     }
 
     /// Register a name for the caller's address

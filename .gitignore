@@ -1,7 +1,14 @@
-.cargo/
-target/
+bin/
+
+node_modules/
+
 .claude/
+target/
+.cargo/
 Cargo.lock
 references/
 
-Clau
+.papi/
+
+*lock.yaml
+*lock.json

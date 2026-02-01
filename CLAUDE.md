@@ -8,29 +8,58 @@ This project builds PolkaVM smart contracts using `cargo-pvm-contract`. The cont
 
 ```
 crates/
-  utils/                    # Shared utilities
-    Cargo.toml
-    lib.rs                  # Exports allocator module
-    allocator.rs            # 256KB global allocator (picoalloc)
+  utils/src/                  # Shared utilities
+    lib.rs                    # Exports allocator module
+    allocator.rs              # 256KB global allocator (picoalloc)
   contracts/
-    main/                   # Name registry contract
-      Cargo.toml
-      build.rs
+    main/src/                 # Name registry contract
       main.rs
-references/                 # Reference repositories (READ-ONLY)
-  cargo-pvm-contract/       # Contract framework
-  ink/                      # ink! smart contracts (for reference)
-  polkadot-api/             # TypeScript API for Polkadot
+.papi/
+  contracts/                  # ABI files for papi
+  descriptors/dist/           # Generated TypeScript types
+    contracts/nameRegistry.d.ts
+references/                   # Reference repositories (READ-ONLY)
+  cargo-pvm-contract/         # Contract framework
+  ink/                        # ink! smart contracts (for reference)
+  polkadot-api/               # TypeScript API for Polkadot
 ```
 
 ## Build Commands
 
 ```bash
-# Build contract (generates .polkavm file)
+# Full build: contract + ABI + TypeScript types
+./scripts/build.sh              # Release (default)
+./scripts/build.sh debug        # Debug
+
+# Just regenerate TypeScript types
+./scripts/codegen.sh
+
+# Manual cargo build (no TypeScript codegen)
 cargo build --release -p name-registry
 
-# Output location
-target/name-registry.release.polkavm
+# Add/update chain metadata for papi
+npx papi add <name> -w ws://127.0.0.1:<port>
+```
+
+## Build Outputs
+
+| File | Description |
+|------|-------------|
+| `target/name-registry.release.polkavm` | PolkaVM bytecode (deploy this) |
+| `target/name-registry.release.abi.json` | Solidity-compatible ABI |
+| `.papi/descriptors/dist/contracts/` | TypeScript types via papi |
+
+## Local Development (Zombienet)
+
+```bash
+# Start zombienet
+BIN=$(pwd)/bin zombie-cli spawn -p native ./bin/local-dev.toml
+
+# Endpoints:
+# - Relay chain:  ws://127.0.0.1:10000
+# - Asset Hub:    ws://127.0.0.1:10020
+# - People chain: ws://127.0.0.1:10010
+# - Bulletin:     ws://127.0.0.1:10030
 ```
 
 ## Reference Repositories
@@ -49,7 +78,7 @@ target/name-registry.release.polkavm
 - Location: `references/polkadot-api/`
 - Purpose: TypeScript API for interacting with Polkadot/Substrate chains
 - Key packages:
-  - `packages/ink-contracts/` - ink! contract support (reads ink! metadata)
+  - `packages/ink-contracts/` - ink! contract support
   - `packages/codegen/src/sol-types.ts` - Solidity ABI → TypeScript codegen
   - `packages/cli/src/commands/sol.ts` - CLI for adding Solidity contracts
 
@@ -60,31 +89,42 @@ target/name-registry.release.polkavm
   - `crates/metadata/` - ink! metadata format definition
   - `crates/allocator/` - Bump allocator implementation
 
-## TypeScript Codegen
+## TypeScript Codegen (papi)
 
-### Current Status
-cargo-pvm-contract generates **Solidity-compatible ABI JSON** (not ink! metadata).
+### How It Works
+1. `cargo build` generates Solidity-compatible ABI JSON
+2. ABI is copied to `.papi/contracts/`
+3. `npx papi generate` creates TypeScript types in `.papi/descriptors/`
 
-polkadot-api has:
-1. **ink! support** (`@polkadot-api/ink-contracts`) - for ink! metadata format
-2. **Solidity support** (`packages/codegen/src/sol-types.ts`) - for Solidity ABI format
-
-### Approach for TypeScript Generation
-Since cargo-pvm-contract outputs Solidity-style ABI, use polkadot-api's Solidity codegen:
-```bash
-# polkadot-api CLI (if available)
-papi sol add contract.abi.json contractName
+### Generated Types
+```typescript
+// .papi/descriptors/dist/contracts/nameRegistry.d.ts
+type MessagesDescriptor = {
+  "register": { message: { "name": bigint }, response: {} },
+  "lookup": { message: { "addr": Address }, response: bigint },
+  "myName": { message: {}, response: bigint }
+}
 ```
 
-Or implement custom codegen based on `references/polkadot-api/packages/codegen/src/sol-types.ts`.
+### Adding New Contracts
+```bash
+# Add contract ABI to papi
+npx papi sol add target/my-contract.release.abi.json myContract
+
+# Regenerate types
+npx papi generate
+```
+
+### Using Generated Types
+```typescript
+import { contracts } from "@polkadot-api/descriptors"
+const { nameRegistry } = contracts
+```
 
 ## Notes
 
-### ABI Generation Issue
-The ABI generator in cargo-pvm-contract looks for source files in `{manifest_dir}/src/`. Since our contract uses `main.rs` directly in the crate root (not `src/main.rs`), ABI may not be generated automatically.
-
 ### Allocator
-- Uses picoalloc with 256KB heap (configurable in `crates/utils/allocator.rs`)
+- Uses picoalloc with 256KB heap (configurable in `crates/utils/src/allocator.rs`)
 - The allocator is pulled in via `extern crate utils;` in contracts
 - Similar pattern to ink!'s allocator crate
 
@@ -92,3 +132,11 @@ The ABI generator in cargo-pvm-contract looks for source files in `{manifest_dir
 - Uses 32-byte keys with namespace prefix + address
 - Current implementation XORs address bytes into key (see `compute_key` function)
 - Alternative: hash-based keys (more flexible, standard in Solidity/ink!)
+
+### Contract Attributes
+Use fully-qualified attribute paths for ABI generation to work:
+```rust
+#[pvm_contract::contract]  // NOT #[contract]
+#[pvm_contract::method]    // NOT #[method]
+#[pvm_contract::constructor]
+```
