@@ -1,53 +1,56 @@
 #![no_main]
 #![no_std]
 
-// Pull in the global allocator from utils
 extern crate utils;
 
 use pvm_contract as pvm;
 use pvm::{Address, U256, caller};
+use utils::storage::Mapping;
 
 /// Simple name registry contract
 /// Allows users to register and look up names associated with addresses
 #[pvm::contract]
 mod name_registry {
     use super::*;
-    use pvm_contract::{api, StorageFlags};
+    use pvm_contract::api;
 
-    // Storage key prefix for names mapping
-    const NAMES_PREFIX: [u8; 32] = [
-        0x6e, 0x61, 0x6d, 0x65, 0x73, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    ];
+    // Storage definition inside the contract module
+    #[pvm::storage]
+    struct Storage {
+        registration_count: u64,
+        names: Mapping<[u8; 20], [u8; 32]>,
+    }
 
     /// Initialize the contract
     #[pvm::constructor]
     pub fn new() -> Result<(), Error> {
         caller();
+        Storage::registration_count().set(&0u64);
         Ok(())
     }
 
     /// Register a name for the caller's address
-    /// The name is encoded as a U256 (max 32 bytes)
     #[pvm::method]
     pub fn register(name: U256) {
         let caller = get_caller();
-        let key = compute_key(&caller);
-        let value = name.to_be_bytes::<32>();
-        api::set_storage(StorageFlags::empty(), &key, &value);
+        let caller_bytes: [u8; 20] = caller.as_slice().try_into().unwrap();
+
+        // Store the name for this address
+        Storage::names().insert(&caller_bytes, &name.to_be_bytes::<32>());
+
+        // Increment registration count
+        let count = Storage::registration_count().get().unwrap_or(0);
+        Storage::registration_count().set(&(count + 1));
     }
 
     /// Look up the name registered to an address
-    /// Returns U256(0) if no name is registered
     #[pvm::method]
     pub fn lookup(addr: Address) -> U256 {
-        let key = compute_key(&addr);
-        let mut value = [0u8; 32];
-        let mut out = value.as_mut_slice();
-        let _ = api::get_storage(StorageFlags::empty(), &key, &mut out);
-        U256::from_be_bytes(value)
+        let addr_bytes: [u8; 20] = addr.as_slice().try_into().unwrap();
+        Storage::names()
+            .get(&addr_bytes)
+            .map(|bytes| U256::from_be_bytes(bytes))
+            .unwrap_or(U256::ZERO)
     }
 
     /// Get the name registered to the caller
@@ -57,21 +60,15 @@ mod name_registry {
         lookup(caller)
     }
 
-    /// Helper: get the caller address
+    /// Get the total number of registrations
+    #[pvm::method]
+    pub fn total_registrations() -> u64 {
+        Storage::registration_count().get().unwrap_or(0)
+    }
+
     fn get_caller() -> Address {
         let mut addr = [0u8; 20];
         api::caller(&mut addr);
         Address::from(addr)
-    }
-
-    /// Helper: compute storage key from address
-    fn compute_key(addr: &Address) -> [u8; 32] {
-        let mut key = NAMES_PREFIX;
-        let addr_bytes = addr.as_slice();
-        // XOR address bytes into the key (offset by 12 to fill the 32-byte key)
-        for i in 0..20 {
-            key[12 + i] ^= addr_bytes[i];
-        }
-        key
     }
 }
