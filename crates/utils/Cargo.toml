@@ -1,7 +1,9 @@
 [package]
 name = "utils"
-version = "0.1.0"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
 
 [dependencies]
-picoalloc = { version = "5.2", default-features = false }
+picoalloc.workspace = true
+parity-scale-codec.workspace = true
+pallet-revive-uapi.workspace = true
