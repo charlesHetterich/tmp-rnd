@@ -5,5 +5,3 @@ edition.workspace = true
 
 [dependencies]
 picoalloc.workspace = true
-parity-scale-codec.workspace = true
-pallet-revive-uapi.workspace = true
