@@ -1,5 +1,0 @@
-{
-    "rust-analyzer.cargo.target": null,
-    "rust-analyzer.check.allTargets": false,
-    "rust-analyzer.diagnostics.disabled": ["unlinked-file"]
-}

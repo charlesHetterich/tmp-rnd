@@ -1,7 +1,0 @@
-[package]
-name = "utils"
-version.workspace = true
-edition.workspace = true
-
-[dependencies]
-picoalloc.workspace = true
