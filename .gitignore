@@ -2,4 +2,6 @@
 
 *-lock.json
 Cargo.lock
+
+node_modules/
 target/
