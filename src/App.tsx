@@ -1,5 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { createCdm } from "@dotdm/cdm";
+import { createCdm, Cdm } from "@dotdm/cdm";
+import cdmJson from "../cdm.json";
+
+function getCounter(cdm: Cdm) {
+  return cdm.getContract("@example/counter");
+}
 
 export function App() {
   const [count, setCount] = useState<number | null>(null);
@@ -8,13 +13,12 @@ export function App() {
   const [error, setError] = useState<string | null>(null);
 
   const cdmRef = useRef<ReturnType<typeof createCdm> | null>(null);
-  const counterRef = useRef<any>(null);
+  const counterRef = useRef<ReturnType<typeof getCounter> | null>(null);
 
   useEffect(() => {
-    const cdm = createCdm();
+    const cdm = createCdm(cdmJson);
     cdmRef.current = cdm;
-    counterRef.current = cdm.getContract("@example/counter");
-
+    counterRef.current = getCounter(cdm);
     return () => {
       cdm.destroy();
     };

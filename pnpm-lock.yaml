@@ -10,7 +10,7 @@ importers:
     dependencies:
       '@dotdm/cdm':
         specifier: latest
-        version: 0.2.3(@polkadot-api/ink-contracts@0.4.6)(postcss@8.5.6)(rxjs@7.8.2)(typescript@5.9.3)
+        version: 0.3.0(@polkadot-api/ink-contracts@0.4.6)(postcss@8.5.6)(rxjs@7.8.2)(typescript@5.9.3)
       '@polkadot-labs/hdkd':
         specifier: ^0.0.26
         version: 0.0.26
@@ -136,11 +136,11 @@ packages:
     peerDependencies:
       commander: ~14.0.0
 
-  '@dotdm/cdm@0.2.3':
-    resolution: {integrity: sha512-OVPTkIBlsJXNOgaTbVd45tLnNgEUjGN4xqePpLukh+Gp151hJTVNiBFwRfvq69cqig3NLE4O8Qh1F+0LZycqOw==}
+  '@dotdm/cdm@0.3.0':
+    resolution: {integrity: sha512-+v+GdBFlELGsNM4UG+yiW7dgOBcm7Gj5FBQk4VcckbGFHXS3MvZs9px7r1rQHeBs+jqxpXREZOtTaC3SUSij/A==}
 
-  '@dotdm/contracts@0.1.4':
-    resolution: {integrity: sha512-T5gf0k8ESf4OK6QSbTNilLahQU4FoyS6BhZf8y9hUJuBT83+0fUT3Xpdi43f6dfsX/pD6uuXgILte2n8F6uDYQ==}
+  '@dotdm/contracts@0.2.0':
+    resolution: {integrity: sha512-kTw82GxFoPJ2tax5AgTMT6Im0M0wrDeiJlj1A5udqG9jUW9rh9LcdGKFcZeqxIbvtOBPrkPjwBZMil2Ldkr2KA==}
 
   '@dotdm/descriptors@0.1.1':
     resolution: {integrity: sha512-aY4/V3D9HKXUODA3j6VDlqD/Gky4Uw/kXQ5xdlFqDM5JIRITCuvblh1ZIipXV1iP2ZRcH5rPDBL9IuHxEsn1EA==}
@@ -1465,9 +1465,9 @@ snapshots:
     dependencies:
       commander: 14.0.3
 
-  '@dotdm/cdm@0.2.3(@polkadot-api/ink-contracts@0.4.6)(postcss@8.5.6)(rxjs@7.8.2)(typescript@5.9.3)':
+  '@dotdm/cdm@0.3.0(@polkadot-api/ink-contracts@0.4.6)(postcss@8.5.6)(rxjs@7.8.2)(typescript@5.9.3)':
     dependencies:
-      '@dotdm/contracts': 0.1.4(@polkadot-api/ink-contracts@0.4.6)(postcss@8.5.6)(rxjs@7.8.2)(typescript@5.9.3)
+      '@dotdm/contracts': 0.2.0(@polkadot-api/ink-contracts@0.4.6)(postcss@8.5.6)(rxjs@7.8.2)(typescript@5.9.3)
       '@dotdm/env': 0.1.3(postcss@8.5.6)(rxjs@7.8.2)
       '@dotdm/utils': 0.1.2
       '@polkadot-api/sdk-ink': 0.6.2(@polkadot-api/ink-contracts@0.4.6)(polkadot-api@1.23.3(postcss@8.5.6)(rxjs@7.8.2))(rxjs@7.8.2)(typescript@5.9.3)
@@ -1487,7 +1487,7 @@ snapshots:
       - yaml
       - zod
 
-  '@dotdm/contracts@0.1.4(@polkadot-api/ink-contracts@0.4.6)(postcss@8.5.6)(rxjs@7.8.2)(typescript@5.9.3)':
+  '@dotdm/contracts@0.2.0(@polkadot-api/ink-contracts@0.4.6)(postcss@8.5.6)(rxjs@7.8.2)(typescript@5.9.3)':
     dependencies:
       '@dotdm/descriptors': 0.1.1(polkadot-api@1.23.3(postcss@8.5.6)(rxjs@7.8.2))
       '@dotdm/env': 0.1.3(postcss@8.5.6)(rxjs@7.8.2)

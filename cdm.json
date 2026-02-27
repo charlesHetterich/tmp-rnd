@@ -12,5 +12,95 @@
       "@example/counter-writer": "latest",
       "@example/counter-reader": "latest"
     }
+  },
+  "contracts": {
+    "5c8dab1013ef5e47": {
+      "@example/counter": {
+        "version": 3,
+        "address": "0xa156703D593CDc85a4e5B159117930E531B9a975",
+        "abi": [
+          {
+            "type": "constructor",
+            "inputs": [],
+            "stateMutability": "nonpayable"
+          },
+          {
+            "type": "function",
+            "name": "increment",
+            "inputs": [],
+            "outputs": [],
+            "stateMutability": "nonpayable"
+          },
+          {
+            "type": "function",
+            "name": "getCount",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "",
+                "type": "uint32"
+              }
+            ],
+            "stateMutability": "view"
+          }
+        ],
+        "metadataCid": "bafk2bzacecuhbiab74pqycmm3dwqxlafy2db34lszffv4ux7nzuwodwkxznsm"
+      },
+      "@example/counter-writer": {
+        "version": 2,
+        "address": "0x453cd4A972AbFb946aC2F343BE65F486B31F338c",
+        "abi": [
+          {
+            "type": "constructor",
+            "inputs": [],
+            "stateMutability": "nonpayable"
+          },
+          {
+            "type": "function",
+            "name": "writeIncrement",
+            "inputs": [],
+            "outputs": [],
+            "stateMutability": "nonpayable"
+          },
+          {
+            "type": "function",
+            "name": "writeIncrementN",
+            "inputs": [
+              {
+                "name": "n",
+                "type": "uint32"
+              }
+            ],
+            "outputs": [],
+            "stateMutability": "nonpayable"
+          }
+        ],
+        "metadataCid": "bafk2bzacedzgigcbxmnbtemhmggi2yvxhyydrnwfepbn73kp3gxdwdbptihxy"
+      },
+      "@example/counter-reader": {
+        "version": 1,
+        "address": "0x03A0a0c5caA3fAa99bC2B9FC9626D297D4a6b570",
+        "abi": [
+          {
+            "type": "constructor",
+            "inputs": [],
+            "stateMutability": "nonpayable"
+          },
+          {
+            "type": "function",
+            "name": "readCount",
+            "inputs": [],
+            "outputs": [
+              {
+                "name": "",
+                "type": "uint32"
+              }
+            ],
+            "stateMutability": "view"
+          }
+        ],
+        "metadataCid": "bafk2bzaceduhv2gkuaukknmeo3fv75vkpq5zghmeecaznxbts7qjh56yswkm2"
+      }
+    }
   }
 }
